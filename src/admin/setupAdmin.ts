@@ -100,7 +100,7 @@ const buildResources = () => [
           bucket: 'public/uploads',
           opts: { baseUrl: '/uploads' }
         }),
-        properties: { key: 'images', file: 'uploadFiles' },
+        properties: { key: 'images', file: 'imagesFile' },
         multiple: true
       });
 
@@ -109,7 +109,19 @@ const buildResources = () => [
         options: {
           navigation: "Approvals",
           sort: { sortBy: 'createdAt', direction: 'desc' },
-          defaultFilter: { status: 'pending' },
+          listProperties: ['name', 'location', 'price', 'taxRate', 'category', 'status'],
+          editProperties: [
+            'name', 'location', 'price', 'taxRate', 'category', 'status',
+            'description', 'imagesFile', 'rating', 'reviewCount', 
+            'deposit', 'rules', 'mealsIncluded', 'amenities', 
+            'fullAmenities', 'nearby', 'tiers'
+          ],
+          showProperties: [
+            'id', 'name', 'location', 'price', 'taxRate', 'category', 'status',
+            'description', 'images', 'rating', 'reviewCount', 
+            'deposit', 'rules', 'mealsIncluded', 'amenities', 
+            'fullAmenities', 'nearby', 'tiers', 'ownerId', 'createdAt', 'updatedAt'
+          ],
           properties: {
              status: {
               availableValues: [
@@ -117,6 +129,57 @@ const buildResources = () => [
                 { value: 'approved', label: 'Approved' },
                 { value: 'rejected', label: 'Rejected' }
               ]
+            },
+            category: {
+              availableValues: [
+                { value: 'Hotel', label: 'Hotel' },
+                { value: 'PG', label: 'PG / Student Housing' },
+                { value: 'Resort', label: 'Resort' },
+                { value: 'Villa', label: 'Villa' },
+                { value: 'Apartment', label: 'Apartment' },
+                { value: 'Tropical', label: 'Tropical' },
+                { value: 'Mountain', label: 'Mountain' }
+              ]
+            },
+            taxRate: {
+              type: 'number',
+              helpText: 'Percentage tax rate (e.g. 12.00)',
+            },
+            description: { type: 'textarea' },
+            rules: { type: 'textarea' },
+            images: { isVisible: { list: false, edit: false, show: true, filter: false } },
+            imagesFile: { isVisible: { list: false, edit: true, show: false, filter: false } },
+            
+            // Structured Inputs instead of JSON
+            amenities: {
+              type: 'string',
+              isArray: true,
+              label: 'Key Amenities (e.g. WiFi, Pool)'
+            },
+            tiers: {
+              type: 'mixed',
+              isArray: true,
+              label: 'Room/Suite Tiers',
+              props: {
+                name: { type: 'string', label: 'Tier Name (e.g. Deluxe Suite)' },
+                price: { type: 'string', label: 'Price (e.g. ₹5,000)' },
+                availability: { type: 'string', label: 'Availability (e.g. AVAILABLE, 2 LEFT)' }
+              }
+            },
+            nearby: {
+              type: 'mixed',
+              isArray: true,
+              label: 'Neighborhood Spots',
+              props: {
+                name: { type: 'string', label: 'Spot Name' },
+                distance: { type: 'string', label: 'Distance (e.g. 5 min walk)' },
+                image: { type: 'string', label: 'Image URL' }
+              }
+            },
+            fullAmenities: {
+              type: 'string',
+              isArray: true,
+              label: 'Full Feature List'
             }
           },
           actions: {

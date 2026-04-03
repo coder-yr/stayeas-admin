@@ -7,31 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  user
-  admin
-  owner
-}
-
-enum HotelStatus {
-  pending
-  approved
-  rejected
-}
-
-enum BookingType {
-  hotel
-  flight
-  train
-  bus
-}
-
-enum BookingStatus {
-  pending
-  confirmed
-  cancelled
-}
-
 model User {
   id             String              @id @default(cuid())
   email          String              @unique
@@ -48,35 +23,36 @@ model User {
   bookings       Booking[]
   chatLogs       ChatLog[]
   searches       FlightSearch[]
-  transactions   WalletTransaction[]
   ownedHotels    Hotel[]             @relation("HotelOwner")
+  transactions   WalletTransaction[]
 
   @@map("users")
 }
 
 model Hotel {
-  id            String    @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String
   location      String
-  price         Decimal   @db.Decimal(10, 2)
-  rating        Decimal   @default(0.00) @db.Decimal(3, 2)
+  price         Decimal     @db.Decimal(10, 2)
+  rating        Decimal     @default(0.00) @db.Decimal(3, 2)
   amenities     Json?
   images        Json?
   description   String?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  category      String    @default("Premium")
-  fullAmenities Json?     @map("full_amenities")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  category      String      @default("Premium")
+  taxRate       Decimal     @default(12.00) @db.Decimal(5, 2)
+  fullAmenities Json?       @map("full_amenities")
   nearby        Json?
-  reviewCount   Int       @default(100) @map("review_count")
+  reviewCount   Int         @default(100) @map("review_count")
   tiers         Json?
-  deposit       Decimal?  @db.Decimal(10, 2)
+  deposit       Decimal?    @db.Decimal(10, 2)
   rules         String?
   mealsIncluded Boolean?
+  ownerId       String?     @map("owner_id")
   status        HotelStatus @default(pending)
-  ownerId       String?   @map("owner_id")
   bookings      Booking[]
-  owner         User?     @relation("HotelOwner", fields: [ownerId], references: [id])
+  owner         User?       @relation("HotelOwner", fields: [ownerId], references: [id])
 
   @@index([location])
   @@index([price])
@@ -114,13 +90,13 @@ model Booking {
   travelDate  DateTime      @map("travel_date")
   hotelId     String?       @map("hotel_id")
   flightData  Json?         @map("flight_data")
-  trainData   Json?         @map("train_data")
-  busData     Json?         @map("bus_data")
   totalAmount Decimal       @map("total_amount") @db.Decimal(10, 2)
   currency    String        @default("USD")
   metadata    Json?
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
+  busData     Json?         @map("bus_data")
+  trainData   Json?         @map("train_data")
   hotel       Hotel?        @relation(fields: [hotelId], references: [id])
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -128,44 +104,6 @@ model Booking {
   @@index([type, travelDate])
   @@index([hotelId])
   @@map("bookings")
-}
-
-model Train {
-  id            String   @id @default(cuid())
-  operator      String
-  source        String
-  destination   String
-  departureTime DateTime @map("departure_time")
-  arrivalTime   DateTime @map("arrival_time")
-  duration      String?
-  class_type    String?  @map("class_type")
-  price         Decimal  @db.Decimal(10, 2)
-  currency      String   @default("INR")
-  train_number  String?  @map("train_number")
-  rawPayload    Json?    @map("raw_payload")
-  fetchedAt     DateTime @default(now()) @map("fetched_at")
-
-  @@index([source, destination, departureTime])
-  @@map("trains")
-}
-
-model Bus {
-  id            String   @id @default(cuid())
-  operator      String
-  source        String
-  destination   String
-  departureTime DateTime @map("departure_time")
-  arrivalTime   DateTime @map("arrival_time")
-  duration      String?
-  bus_type      String?  @map("bus_type")
-  price         Decimal  @db.Decimal(10, 2)
-  currency      String   @default("INR")
-  bus_number    String?  @map("bus_number")
-  rawPayload    Json?    @map("raw_payload")
-  fetchedAt     DateTime @default(now()) @map("fetched_at")
-
-  @@index([source, destination, departureTime])
-  @@map("buses")
 }
 
 model FlightSearch {
@@ -208,4 +146,67 @@ model WalletTransaction {
 
   @@index([userId])
   @@map("wallet_transactions")
+}
+
+model Bus {
+  id            String   @id @default(cuid())
+  operator      String
+  source        String
+  destination   String
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      String?
+  busType       String?  @map("bus_type")
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("INR")
+  busNumber     String?  @map("bus_number")
+  rawPayload    Json?    @map("raw_payload")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([source, destination, departureTime])
+  @@map("buses")
+}
+
+model Train {
+  id            String   @id @default(cuid())
+  operator      String
+  source        String
+  destination   String
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      String?
+  classType     String?  @map("class_type")
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("INR")
+  trainNumber   String?  @map("train_number")
+  rawPayload    Json?    @map("raw_payload")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([source, destination, departureTime])
+  @@map("trains")
+}
+
+enum UserRole {
+  user
+  admin
+  owner
+}
+
+enum HotelStatus {
+  pending
+  approved
+  rejected
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+enum BookingType {
+  hotel
+  flight
+  train
+  bus
 }
