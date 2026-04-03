@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*
+
+# Build output
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# AdminJS build
+.adminjs/bundle.js
+.adminjs/entry.js
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+prisma/migrations/
+prisma/.env
+
+# Public uploads (if not versioned)
+public/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/

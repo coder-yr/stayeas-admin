@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+  owner
+}
+
+enum HotelStatus {
+  pending
+  approved
+  rejected
+}
+
+enum BookingType {
+  hotel
+  flight
+  train
+  bus
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+model User {
+  id             String              @id @default(cuid())
+  email          String              @unique
+  passwordHash   String              @map("password_hash")
+  name           String?
+  role           UserRole            @default(user)
+  preferences    Json?
+  travelHistory  Json?               @map("travel_history")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  loyaltyPoints  Int                 @default(0) @map("loyalty_points")
+  membershipTier String              @default("Silver") @map("membership_tier")
+  walletBalance  Decimal             @default(0.00) @map("wallet_balance") @db.Decimal(10, 2)
+  bookings       Booking[]
+  chatLogs       ChatLog[]
+  searches       FlightSearch[]
+  transactions   WalletTransaction[]
+  ownedHotels    Hotel[]             @relation("HotelOwner")
+
+  @@map("users")
+}
+
+model Hotel {
+  id            String    @id @default(cuid())
+  name          String
+  location      String
+  price         Decimal   @db.Decimal(10, 2)
+  rating        Decimal   @default(0.00) @db.Decimal(3, 2)
+  amenities     Json?
+  images        Json?
+  description   String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  category      String    @default("Premium")
+  fullAmenities Json?     @map("full_amenities")
+  nearby        Json?
+  reviewCount   Int       @default(100) @map("review_count")
+  tiers         Json?
+  deposit       Decimal?  @db.Decimal(10, 2)
+  rules         String?
+  mealsIncluded Boolean?
+  status        HotelStatus @default(pending)
+  ownerId       String?   @map("owner_id")
+  bookings      Booking[]
+  owner         User?     @relation("HotelOwner", fields: [ownerId], references: [id])
+
+  @@index([location])
+  @@index([price])
+  @@index([rating])
+  @@index([ownerId])
+  @@map("hotels")
+}
+
+model Flight {
+  id            String   @id @default(cuid())
+  externalId    String?  @unique @map("external_id")
+  airline       String
+  source        String
+  destination   String
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      String?
+  stops         Int      @default(0)
+  cabinClass    String?  @map("cabin_class")
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("USD")
+  rawPayload    Json?    @map("raw_payload")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([source, destination, departureTime])
+  @@map("flights")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  type        BookingType
+  status      BookingStatus @default(pending)
+  bookingDate DateTime      @default(now()) @map("booking_date")
+  travelDate  DateTime      @map("travel_date")
+  hotelId     String?       @map("hotel_id")
+  flightData  Json?         @map("flight_data")
+  trainData   Json?         @map("train_data")
+  busData     Json?         @map("bus_data")
+  totalAmount Decimal       @map("total_amount") @db.Decimal(10, 2)
+  currency    String        @default("USD")
+  metadata    Json?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  hotel       Hotel?        @relation(fields: [hotelId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([type, travelDate])
+  @@index([hotelId])
+  @@map("bookings")
+}
+
+model Train {
+  id            String   @id @default(cuid())
+  operator      String
+  source        String
+  destination   String
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      String?
+  class_type    String?  @map("class_type")
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("INR")
+  train_number  String?  @map("train_number")
+  rawPayload    Json?    @map("raw_payload")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([source, destination, departureTime])
+  @@map("trains")
+}
+
+model Bus {
+  id            String   @id @default(cuid())
+  operator      String
+  source        String
+  destination   String
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      String?
+  bus_type      String?  @map("bus_type")
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String   @default("INR")
+  bus_number    String?  @map("bus_number")
+  rawPayload    Json?    @map("raw_payload")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([source, destination, departureTime])
+  @@map("buses")
+}
+
+model FlightSearch {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  source      String
+  destination String
+  departure   DateTime
+  adults      Int      @default(1)
+  cabinClass  String?  @map("cabin_class")
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("flight_searches")
+}
+
+model ChatLog {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  query     String
+  response  String
+  context   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("chat_logs")
+}
+
+model WalletTransaction {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  amount    Decimal  @db.Decimal(10, 2)
+  type      String
+  method    String   @default("System")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("wallet_transactions")
+}

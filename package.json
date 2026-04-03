@@ -1,0 +1,32 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "prisma:generate": "prisma generate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@adminjs/express": "^6.1.1",
+    "@adminjs/prisma": "^5.0.4",
+    "@adminjs/upload": "^4.0.2",
+    "@prisma/client": "^6.19.3",
+    "adminjs": "^7.8.17",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.18.2",
+    "@types/node": "^25.5.1",
+    "prisma": "^6.19.3",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
