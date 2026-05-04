@@ -120,7 +120,7 @@ const buildResources = () => [
             'id', 'name', 'location', 'price', 'taxRate', 'category', 'status',
             'description', 'images', 'rating', 'reviewCount', 
             'deposit', 'rules', 'mealsIncluded', 'amenities', 
-            'fullAmenities', 'nearby', 'tiers', 'ownerId', 'createdAt', 'updatedAt'
+            'fullAmenities', 'nearby', 'tiers', 'createdAt', 'updatedAt'
           ],
           properties: {
              status: {
@@ -152,9 +152,8 @@ const buildResources = () => [
             
             // Structured Inputs instead of JSON
             amenities: {
-              type: 'string',
-              isArray: true,
-              label: 'Key Amenities (e.g. WiFi, Pool)'
+              type: 'mixed',
+              label: 'Key Amenities (JSON)'
             },
             tiers: {
               type: 'mixed',
