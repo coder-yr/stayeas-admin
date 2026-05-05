@@ -48,6 +48,30 @@ const adminLocale = {
       Flight: "Flight",
       Inventory: "Inventory"
     }
+    ,
+    properties: {
+      name: 'Name',
+      location: 'Location',
+      price: 'Price',
+      taxRate: 'Tax Rate',
+      category: 'Category',
+      status: 'Status',
+      description: 'Description',
+      imagesFile: 'Images File',
+      rating: 'Rating',
+      reviewCount: 'Review Count',
+      deposit: 'Deposit',
+      rules: 'Rules',
+      mealsIncluded: 'Meals Included',
+      amenities: 'Amenities',
+      fullAmenities: 'Full Amenities',
+      nearby: 'Nearby',
+      tiers: 'Tiers'
+    },
+    actions: {
+      approve: 'Approve',
+      approveOwner: 'Approve Owner Access'
+    }
   }
 };
 
@@ -156,8 +180,9 @@ const buildResources = () => [
               label: 'Key Amenities (JSON)'
             },
             tiers: {
+              // Use mixed JSON editor instead of array drag/drop to avoid runtime errors
+              // when stored value is not an array (coerce at API/DB level instead).
               type: 'mixed',
-              isArray: true,
               label: 'Room/Suite Tiers',
               props: {
                 name: { type: 'string', label: 'Tier Name (e.g. Deluxe Suite)' },
@@ -166,8 +191,8 @@ const buildResources = () => [
               }
             },
             nearby: {
+              // Use mixed JSON editor for neighborhood metadata
               type: 'mixed',
-              isArray: true,
               label: 'Neighborhood Spots',
               props: {
                 name: { type: 'string', label: 'Spot Name' },
@@ -176,8 +201,8 @@ const buildResources = () => [
               }
             },
             fullAmenities: {
-              type: 'string',
-              isArray: true,
+              // Treat fullAmenities as mixed JSON to accept arrays or objects safely
+              type: 'mixed',
               label: 'Full Feature List'
             }
           },
